@@ -1,5 +1,7 @@
 # Hadoop使用LZO压缩
 
+***
+
 ## core-site.xml
 
 ```xml
@@ -16,6 +18,8 @@
         </value>
     </property>
 ```
+
+***
 
 ## mapred-site.xml
 
