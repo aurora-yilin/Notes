@@ -4,9 +4,13 @@
 
 >## 解压hive到某个地方并为hive添加环境变量
 >
+>>
+>
 >***
 >
 >## 将mysql的jdbc连接jar包放到hive的根目录下的lib目录中
+>
+>>
 >
 >***
 >
@@ -16,70 +20,70 @@
 >><?xml version="1.0"?>
 >><?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
 >><configuration>
->><!-- jdbc连接的URL -->
->><property>
->>   <name>javax.jdo.option.ConnectionURL</name>
->>   <value>jdbc:mysql://hadoop102:3306/metastore?useSSL=false</value>
->></property>
->><!-- jdbc连接的Driver-->
->><property>
->>   <name>javax.jdo.option.ConnectionDriverName</name>
->>   <value>com.mysql.jdbc.Driver</value>
->></property>
->><!-- jdbc连接的username-->
->><property>
->>   <name>javax.jdo.option.ConnectionUserName</name>
->>   <value>root</value>
->></property>
->><!-- jdbc连接的password -->
->><property>
->>   <name>javax.jdo.option.ConnectionPassword</name>
->>   <value>123456</value>
->></property>
->><!-- Hive默认在HDFS的工作目录 -->
->><property>
->>   <name>hive.metastore.warehouse.dir</name>
->>   <value>/user/hive/warehouse</value>
->></property>
->><!-- Hive元数据存储版本的验证 -->
->><property>
->>   <name>hive.metastore.schema.verification</name>
->>   <value>false</value>
->></property>
->><!-- 指定hiveserver2连接的端口号 -->
->><property>
->><name>hive.server2.thrift.port</name>
->><value>10000</value>
->></property>
->><!-- 指定hiveserver2连接的host -->
->><property>
->>   <name>hive.server2.thrift.bind.host</name>
->>   <value>hadoop102</value>
->></property>
->><!--元数据存储授权-->
->><property>
->>   <name>hive.metastore.event.db.notification.api.auth</name>
->>   <value>false</value>
->></property>
->><!--设置hive命令行操作的时候输出表头-->
->><property>
->>   <name>hive.cli.print.header</name>
->>   <value>true</value>
->></property>
->><property>
->>   <name>hive.cli.print.current.db</name>
->>   <value>true</value>
->></property>
->><!-- hiveserver2的高可用参数，开启此参数可以提高hiveserver2的启动速度 -->
+>>    <!-- jdbc连接的URL -->
+>>    <property>
+>>       <name>javax.jdo.option.ConnectionURL</name>
+>>       <value>jdbc:mysql://hadoop102:3306/metastore?useSSL=false</value>
+>>    </property>
+>>    <!-- jdbc连接的Driver-->
+>>    <property>
+>>       <name>javax.jdo.option.ConnectionDriverName</name>
+>>       <value>com.mysql.jdbc.Driver</value>
+>>    </property>
+>>    <!-- jdbc连接的username-->
+>>    <property>
+>>       <name>javax.jdo.option.ConnectionUserName</name>
+>>       <value>root</value>
+>>    </property>
+>>    <!-- jdbc连接的password -->
+>>    <property>
+>>       <name>javax.jdo.option.ConnectionPassword</name>
+>>       <value>123456</value>
+>>    </property>
+>>    <!-- Hive默认在HDFS的工作目录 -->
+>>    <property>
+>>       <name>hive.metastore.warehouse.dir</name>
+>>       <value>/user/hive/warehouse</value>
+>>    </property>
+>>    <!-- Hive元数据存储版本的验证 -->
+>>    <property>
+>>       <name>hive.metastore.schema.verification</name>
+>>       <value>false</value>
+>>    </property>
+>>    <!-- 指定hiveserver2连接的端口号 -->
+>>    <property>
+>>    <name>hive.server2.thrift.port</name>
+>>    <value>10000</value>
+>>    </property>
+>>    <!-- 指定hiveserver2连接的host -->
+>>    <property>
+>>       <name>hive.server2.thrift.bind.host</name>
+>>       <value>hadoop102</value>
+>>    </property>
+>>    <!--元数据存储授权-->
+>>    <property>
+>>       <name>hive.metastore.event.db.notification.api.auth</name>
+>>       <value>false</value>
+>>    </property>
+>>    <!--设置hive命令行操作的时候输出表头-->
+>>    <property>
+>>       <name>hive.cli.print.header</name>
+>>       <value>true</value>
+>>    </property>
+>>    <property>
+>>       <name>hive.cli.print.current.db</name>
+>>       <value>true</value>
+>>    </property>
+>>	<!-- hiveserver2的高可用参数，开启此参数可以提高hiveserver2的启动速度 -->
 >>	<property>
 >>	<name>hive.server2.active.passive.ha.enable</name>
 >>	<value>true</value>
 >>	</property>
->><!-- 指定存储元数据要连接的地址 -->
->><property>
->>   <name>hive.metastore.uris</name>
->>   <value>thrift://hadoop102:9083</value>
->></property>
+>>    <!-- 指定存储元数据要连接的地址 -->
+>>    <property>
+>>       <name>hive.metastore.uris</name>
+>>       <value>thrift://hadoop102:9083</value>
+>>    </property>
 >></configuration>
 >>```
 >>
@@ -104,7 +108,7 @@
 >
 >>```sql
 >>--在mysql中创建数据库metastore作为hive的元数据库
->>create database metastore;
+>>create database if not exists metastore;
 >>```
 >>
 >>```shell
@@ -112,6 +116,36 @@
 >>schematool -initSchema -dbType mysql -verbose
 >>```
 >
+>***
+>
+>## 启动metastore
+>
+>>```shell
+>> hive --service metastore
+>>```
+>>
+>>**注意: 启动后窗口不能再操作，需打开一个新的shell窗口做别的操作**
+>
+>***
+>
+>## 启动hiveserver2
+>
+>>```shell
+>>hive --service hiveserver2
+>>```
+>
+>***
+>
+>## 可通过hive 或 beeline来连接hive
+>
+>>```shell
+>>bin/beeline -u jdbc:hive2://hadoop102:10000 -n 用户名
+>>```
+>>
+>>```shell
+>>hive
+>>```
+
 >***
 >
 >## 编写脚本来启动或关闭hiveserver2服务和metastore服务(该脚本在为hive配置了环境变量后可直接使用)
